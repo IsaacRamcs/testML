@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eren — Perfil do Investidor</title>
+<style>
+  :root {
+    --bg: #0f1420; --surface: #171e2e; --surface-2: #1f2838; --border: #2a3448;
+    --text: #e8edf7; --muted: #9aa8c0; --accent: #4f8cff; --accent-soft: #1d3a6b;
+    --green: #35c48c; --amber: #f0b429; --red: #f06a5d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 0 16px 64px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { padding: 32px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -0.4px; }
+  .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+         background: var(--accent-soft); color: #9cc2ff; padding: 3px 9px; border-radius: 99px; }
+  .sub { color: var(--muted); margin: 8px 0 0; font-size: 14px; }
+
+  .progress { height: 4px; background: var(--surface-2); border-radius: 99px; margin: 22px 0 26px; overflow: hidden; }
+  .progress > div { height: 100%; background: var(--accent); width: 0; transition: width .3s ease; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+          padding: 22px; margin-bottom: 16px; }
+  .qnum { color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: .5px; }
+  .qtext { font-size: 17px; font-weight: 600; margin: 6px 0 4px; }
+  .qhelp { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .opts { display: grid; gap: 8px; }
+  .opt { display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer;
+         background: var(--surface-2); border: 1px solid transparent; border-radius: 10px;
+         transition: all .15s ease; }
+  .opt:hover { border-color: #3b4a66; }
+  .opt input { accent-color: var(--accent); width: 16px; height: 16px; flex: none; }
+  .opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+
+  button { font: inherit; font-weight: 600; cursor: pointer; border: 0; border-radius: 10px; padding: 13px 22px; }
+  .primary { background: var(--accent); color: #fff; width: 100%; font-size: 16px; }
+  .primary:disabled { background: #2a3448; color: #5f6c85; cursor: not-allowed; }
+  .ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 9px 16px; font-size: 13px; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .result-head { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 22px; font-weight: 700; padding: 10px 20px; border-radius: 12px;
+           background: var(--accent-soft); color: #9cc2ff; }
+  .score { font-size: 13px; color: var(--muted); }
+  h2 { font-size: 18px; margin: 28px 0 12px; }
+  h3 { font-size: 14px; margin: 0 0 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+
+  .bar-row { display: grid; grid-template-columns: 110px 1fr 46px; gap: 12px; align-items: center; margin-bottom: 9px; }
+  .bar { height: 10px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+  .bar > div { height: 100%; background: linear-gradient(90deg, #4f8cff, #7aa8ff); border-radius: 99px; transition: width .5s ease; }
+  .bar-val { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase;
+       letter-spacing: .5px; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 11px 10px; border-bottom: 1px solid #202a3c; }
+  tr:last-child td { border-bottom: 0; }
+  .pos { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tick { font-weight: 700; }
+  .sec { color: var(--muted); font-size: 12px; }
+  .final { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pill { display: inline-block; min-width: 46px; text-align: center; padding: 3px 9px;
+          border-radius: 7px; background: var(--surface-2); }
+  .pill.hi { background: rgba(53,196,140,.16); color: var(--green); }
+  .pill.mid { background: rgba(240,180,41,.14); color: var(--amber); }
+  .pill.lo { background: rgba(240,106,93,.14); color: var(--red); }
+
+  .flag { border-left: 3px solid var(--amber); background: rgba(240,180,41,.07);
+          padding: 13px 16px; border-radius: 0 10px 10px 0; margin-bottom: 10px; }
+  .flag.block { border-color: var(--red); background: rgba(240,106,93,.07); }
+  .flag b { display: block; margin-bottom: 3px; }
+  .flag p { margin: 0; font-size: 13.5px; color: #c6d1e4; }
+
+  .note { font-size: 12.5px; color: var(--muted); font-style: italic; margin: 10px 0 0; }
+  footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--border);
+           color: var(--muted); font-size: 12px; }
+  .hidden { display: none; }
+  @media (max-width: 560px) { .bar-row { grid-template-columns: 88px 1fr 40px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Eren</h1>
+      <span class="tag">US03 · Perfil do investidor</span>
+    </div>
+    <p class="sub">Questionário de suitability → classificação de risco → vetor de pesos do motor de score.</p>
+  </header>
+
+  <div id="loading" class="card">Carregando questionário…</div>
+
+  <section id="form-view" class="hidden">
+    <div class="progress"><div id="bar"></div></div>
+    <div id="questions"></div>
+    <button id="submit" class="primary" disabled>Calcular meu perfil</button>
+  </section>
+
+  <section id="result-view" class="hidden">
+    <div class="card">
+      <div class="result-head">
+        <div class="badge" id="r-class">—</div>
+        <div>
+          <div id="r-objective" style="font-weight:600"></div>
+          <div class="score" id="r-score"></div>
+        </div>
+      </div>
+      <p class="sub" id="r-desc" style="margin-top:16px"></p>
+    </div>
+
+    <div id="r-flags"></div>
+
+    <div class="card">
+      <h3>Vetor de pesos aplicado — <span id="r-vector"></span></h3>
+      <div id="r-weights"></div>
+      <p class="note">É este vetor que personaliza a análise: o score final de cada ação é a média ponderada das 5 dimensões com estes pesos.</p>
+    </div>
+
+    <div class="card">
+      <h3>Ranking de ações para este perfil</h3>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>#</th><th>Ativo</th><th>Val</th><th>Qual</th><th>Div</th><th>Estab</th><th>Mom</th><th style="text-align:right">Score</th></tr></thead>
+          <tbody id="r-assets"></tbody>
+        </table>
+      </div>
+      <p class="note" id="r-demo-note"></p>
+    </div>
+
+    <div class="row">
+      <button class="ghost" id="again">↺ Refazer questionário</button>
+      <button class="ghost" id="json-btn">{ } Ver resposta da API</button>
+    </div>
+    <pre id="json-out" class="card hidden" style="overflow-x:auto;font-size:12px;white-space:pre-wrap"></pre>
+  </section>
+
+  <footer id="disclaimer"></footer>
+</div>
+
+<script>
+const API = '';
+let questions = [], answers = {};
+
+async function init() {
+  const res = await fetch(API + '/api/questionnaire');
+  const data = await res.json();
+  questions = data.questions;
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('form-view').classList.remove('hidden');
+  render();
+}
+
+function render() {
+  document.getElementById('questions').innerHTML = questions.map((q, i) => `
+    <div class="card">
+      <div class="qnum">PERGUNTA ${i + 1} DE ${questions.length}${q.scores ? '' : ' · define o objetivo'}</div>
+      <div class="qtext">${q.text}</div>
+      ${q.help_text ? `<p class="qhelp">${q.help_text}</p>` : ''}
+      <div class="opts">
+        ${q.options.map(o => `
+          <label class="opt" data-q="${q.id}" data-v="${o.value}">
+            <input type="radio" name="${q.id}" value="${o.value}">
+            <span>${o.label}</span>
+          </label>`).join('')}
+      </div>
+    </div>`).join('');
+
+  document.querySelectorAll('.opt').forEach(el => {
+    el.addEventListener('click', () => {
+      const q = el.dataset.q;
+      answers[q] = el.dataset.v;
+      document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(s => s.classList.remove('sel'));
+      el.classList.add('sel');
+      el.querySelector('input').checked = true;
+      update();
+    });
+  });
+}
+
+function update() {
+  const n = Object.keys(answers).length, total = questions.length;
+  document.getElementById('bar').style.width = (n / total * 100) + '%';
+  document.getElementById('submit').disabled = n < total;
+  document.getElementById('submit').textContent =
+    n < total ? `Responda todas as perguntas (${n}/${total})` : 'Calcular meu perfil';
+}
+
+const OBJ = { renda: 'Renda passiva / aposentadoria', crescimento: 'Crescimento do patrimônio',
+              equilibrio: 'Equilíbrio', preservacao: 'Preservação de capital' };
+const DIM = { valor: 'Valor', qualidade: 'Qualidade', dividendos: 'Dividendos',
+              estabilidade: 'Estabilidade', momentum: 'Momentum' };
+
+function pill(v) {
+  const cls = v >= 70 ? 'hi' : v >= 45 ? 'mid' : 'lo';
+  return `<span class="pill ${cls}">${v}</span>`;
+}
+
+document.getElementById('submit').addEventListener('click', async () => {
+  const btn = document.getElementById('submit');
+  btn.disabled = true; btn.textContent = 'Calculando…';
+  const res = await fetch(API + '/api/profile', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answers })
+  });
+  const data = await res.json();
+  showResult(data);
+});
+
+function showResult(data) {
+  const p = data.profile;
+  document.getElementById('form-view').classList.add('hidden');
+  document.getElementById('result-view').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  document.getElementById('r-class').textContent = p.risk_class_label;
+  document.getElementById('r-objective').textContent = 'Objetivo: ' + (OBJ[p.objective] || p.objective);
+  document.getElementById('r-score').textContent =
+    `Pontuação de risco: ${p.risk_score} de ${p.max_score} · questionário v${p.questionnaire_version} · regras ${p.rules_version}`;
+  document.getElementById('r-desc').textContent = p.risk_class_description;
+
+  document.getElementById('r-flags').innerHTML = (p.safety_flags || []).map(f => `
+    <div class="flag ${f.blocks_recommendations ? 'block' : ''}">
+      <b>${f.title}</b><p>${f.message}</p>
+    </div>`).join('');
+
+  document.getElementById('r-vector').textContent = p.weight_vector_label;
+  document.getElementById('r-weights').innerHTML = Object.entries(p.weight_vector).map(([k, v]) => `
+    <div class="bar-row">
+      <span>${DIM[k] || k}</span>
+      <div class="bar"><div style="width:${v * 100 * 2.5}%"></div></div>
+      <span class="bar-val">${Math.round(v * 100)}%</span>
+    </div>`).join('');
+
+  document.getElementById('r-assets').innerHTML = data.ranking.assets.map((a, i) => `
+    <tr>
+      <td class="pos">${i + 1}</td>
+      <td><span class="tick">${a.ticker}</span><br><span class="sec">${a.sector}</span></td>
+      <td>${pill(a.scores.valor)}</td>
+      <td>${pill(a.scores.qualidade)}</td>
+      <td>${pill(a.scores.dividendos)}</td>
+      <td>${pill(a.scores.estabilidade)}</td>
+      <td>${pill(a.scores.momentum)}</td>
+      <td class="final">${a.final_score}</td>
+    </tr>`).join('');
+
+  document.getElementById('r-demo-note').textContent = data.ranking.note;
+  document.getElementById('disclaimer').textContent = data.disclaimer;
+  document.getElementById('json-out').textContent = JSON.stringify(data, null, 2);
+}
+
+document.getElementById('again').addEventListener('click', () => {
+  answers = {};
+  document.getElementById('result-view').classList.add('hidden');
+  document.getElementById('form-view').classList.remove('hidden');
+  document.getElementById('json-out').classList.add('hidden');
+  render(); update();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+document.getElementById('json-btn').addEventListener('click', () => {
+  document.getElementById('json-out').classList.toggle('hidden');
+});
+
+init();
+</script>
+</body>
+</html>

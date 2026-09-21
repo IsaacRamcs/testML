@@ -1,0 +1,9 @@
+[project]
+name = "eren-ml"
+version = "0.1.0"
+description = "Motor de análise e perfil do investidor do sistema Eren"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
