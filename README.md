@@ -39,6 +39,49 @@ uvicorn api.main:app --reload          # http://127.0.0.1:8000
 | `GET /api/questionnaire` | Perguntas e opções (consumido pelo app React Native) |
 | `POST /api/profile` | Respostas → perfil + vetor de pesos + ranking |
 
+## Motor de score das ações (v0.2-dev) — funcionando com dados reais
+
+Cada ação do universo (~50 das mais líquidas da B3) recebe **5 notas de 0 a 100**,
+calculadas por **percentil** (comparação com as demais ações, não limiares fixos):
+
+| Dimensão | Réguas ativas nesta versão | Comparação | Base acadêmica |
+|---|---|---|---|
+| Valor | L/P, P/VP, EV/EBITDA | setor | Basu (1977); Fama & French (1992) |
+| Qualidade | ROE, ROIC, margem líquida, dívida líq./patrimônio | setor | Piotroski (2000); Novy-Marx (2013) |
+| Dividendos | DY médio 5 anos, consistência, payout saudável, tendência do DPA | universo | Lintner (1956) |
+| Estabilidade | volatilidade 12m, queda máxima 3a, beta, porte | universo | Ang et al. (2006); Baker et al. (2011) |
+| Momentum | retorno 12−1, 6−1, proximidade da máxima 52s | universo | Jegadeesh & Titman (1993); Carhart (1997) |
+
+Antes da pontuação, **filtros eliminatórios** retiram a ação do ranking:
+liquidez < R$ 1 mi/dia (E1), patrimônio líquido negativo (E2), < 2 anos de histórico (E6).
+
+O **score final** de cada ação para um investidor = média ponderada das 5 notas com o
+vetor de pesos do perfil — a mesma ação recebe scores diferentes para perfis diferentes.
+
+**Réguas pendentes** (F-Score, FCF yield, consistência do ROE, cobertura por caixa) e os
+filtros E3/E4/E5 dependem das demonstrações históricas da CVM — próxima etapa. Até lá,
+seus pesos são redistribuídos dentro da dimensão e a API sinaliza isso em `/api/scores/meta`.
+
+### Fontes de dados (provisórias)
+- **Fundamentus** — múltiplos e rentabilidade de todas as ações (1 requisição)
+- **Yahoo Finance** — histórico diário de 5 anos com preço ajustado e proventos
+
+### Atualizar os dados
+```bash
+python -m eren_ml.pipeline.run            # coleta tudo de novo e recalcula (~1 min)
+python -m eren_ml.pipeline.run --offline  # recalcula com os dados salvos em data/raw
+```
+
+### Endpoints do motor
+| Endpoint | O que faz |
+|---|---|
+| `GET /api/rankings?vector=renda&limit=10` | Ranking por estratégia (renda, crescimento, equilibrio, preservacao) |
+| `POST /api/rankings` | Ranking para um vetor de pesos qualquer (o app envia o vetor do perfil) |
+| `GET /api/assets/{ticker}` | Scores, cada régua com valor, percentil e grupo de comparação |
+| `GET /api/scores/meta` | Data dos dados, ações eliminadas, réguas pendentes |
+
+Código: `eren_ml/scoring/` (regras, indicadores, motor, ranking) e `eren_ml/pipeline/` (coleta).
+
 ## Estrutura
 
 ```

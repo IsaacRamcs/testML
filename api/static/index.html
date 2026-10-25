@@ -83,6 +83,13 @@
   footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--border);
            color: var(--muted); font-size: 12px; }
   .hidden { display: none; }
+  .why { font-size: 12px; color: var(--green); }
+  .why.warn { color: var(--amber); }
+  .lnk { color: var(--text); text-decoration: none; border-bottom: 1px dashed var(--muted); }
+  .rg { display:grid; grid-template-columns: 1fr 90px 54px; gap:8px; font-size:13px; padding:5px 0; border-bottom:1px solid #202a3c; }
+  .rg .v { color: var(--muted); text-align:right; }
+  .off { opacity:.45; }
+  .dimh { display:flex; justify-content:space-between; margin:16px 0 4px; font-weight:600; }
   @media (max-width: 560px) { .bar-row { grid-template-columns: 88px 1fr 40px; } }
 </style>
 </head>
@@ -91,9 +98,9 @@
   <header>
     <div class="brand">
       <h1>Eren</h1>
-      <span class="tag">US03 · Perfil do investidor</span>
+      <span class="tag">Perfil do investidor + Motor de score</span>
     </div>
-    <p class="sub">Questionário de suitability → classificação de risco → vetor de pesos do motor de score.</p>
+    <p class="sub">Questionário de suitability → perfil → vetor de pesos → ranking de ações com dados reais de mercado.</p>
   </header>
 
   <div id="loading" class="card">Carregando questionário…</div>
@@ -141,6 +148,23 @@
     </div>
     <pre id="json-out" class="card hidden" style="overflow-x:auto;font-size:12px;white-space:pre-wrap"></pre>
   </section>
+
+  <section id="explore" class="card">
+    <h3>Explorar o motor de score — qualquer ação do universo</h3>
+    <div class="row" style="margin-bottom:12px">
+      <select id="vec" style="font:inherit;padding:9px;border-radius:8px;background:var(--surface-2);color:var(--text);border:1px solid var(--border)">
+        <option value="renda">Estratégia: Renda / dividendos</option>
+        <option value="crescimento">Estratégia: Crescimento</option>
+        <option value="equilibrio" selected>Estratégia: Equilíbrio</option>
+        <option value="preservacao">Estratégia: Preservação</option>
+      </select>
+      <span class="sec" id="meta-line"></span>
+    </div>
+    <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Ativo</th><th>Val</th><th>Qual</th><th>Div</th><th>Estab</th><th>Mom</th><th style="text-align:right">Score</th></tr></thead><tbody id="x-assets"></tbody></table></div>
+    <p class="note" id="elim-line"></p>
+  </section>
+
+  <section id="detail" class="card hidden"></section>
 
   <footer id="disclaimer"></footer>
 </div>
@@ -242,7 +266,7 @@ function showResult(data) {
   document.getElementById('r-assets').innerHTML = data.ranking.assets.map((a, i) => `
     <tr>
       <td class="pos">${i + 1}</td>
-      <td><span class="tick">${a.ticker}</span><br><span class="sec">${a.sector}</span></td>
+      <td><a href="#" class="tick lnk" data-t="${a.ticker}">${a.ticker}</a><br><span class="sec">${a.sector}</span>${(a.reasons && a.reasons.strengths.length) ? `<br><span class="why">✓ ${a.reasons.strengths.map(x=>x.text).join(' · ')}</span>` : ''}${(a.reasons && a.reasons.weaknesses.length) ? `<br><span class="why warn">! ${a.reasons.weaknesses.map(x=>x.text).join(' · ')}</span>` : ''}</td>
       <td>${pill(a.scores.valor)}</td>
       <td>${pill(a.scores.qualidade)}</td>
       <td>${pill(a.scores.dividendos)}</td>
@@ -269,7 +293,47 @@ document.getElementById('json-btn').addEventListener('click', () => {
   document.getElementById('json-out').classList.toggle('hidden');
 });
 
+function row(a,i){ return `<tr>
+  <td class="pos">${i+1}</td>
+  <td><a href="#" class="tick lnk" data-t="${a.ticker}">${a.ticker}</a><br><span class="sec">${a.sector}</span>${a.reasons.strengths.length?`<br><span class="why">✓ ${a.reasons.strengths.map(x=>x.text).join(' · ')}</span>`:''}</td>
+  <td>${pill(a.scores.valor)}</td><td>${pill(a.scores.qualidade)}</td><td>${pill(a.scores.dividendos)}</td><td>${pill(a.scores.estabilidade)}</td><td>${pill(a.scores.momentum)}</td>
+  <td class="final">${a.final_score}</td></tr>`; }
+
+async function loadExplore(){
+  const v=document.getElementById('vec').value;
+  const r=await fetch(API+'/api/rankings?vector='+v+'&limit=50'); if(!r.ok){document.getElementById('explore').classList.add('hidden');return;}
+  const d=await r.json();
+  document.getElementById('meta-line').textContent=`Dados de mercado de ${d.as_of} · ${d.eligible} ações pontuadas · regras ${d.rule_version}`;
+  document.getElementById('x-assets').innerHTML=d.assets.map(row).join('');
+  const m=await (await fetch(API+'/api/scores/meta')).json();
+  document.getElementById('elim-line').textContent = m.eliminated.length ? 'Eliminadas pelos filtros: '+m.eliminated.map(e=>e.ticker+' ('+e.reasons.join('; ')+')').join(', ') : '';
+}
+document.getElementById('vec').addEventListener('change',loadExplore);
+
+function fmtv(v,f){ if(v===null||v===undefined) return '—';
+  if(f==='pct') return (v*100).toFixed(1)+'%';
+  if(f==='x') return v>=999?'EBITDA<0':v.toFixed(2)+'x';
+  if(f==='brl') return 'R$ '+(v/1e9).toFixed(1)+' bi';
+  return (+v).toFixed(1); }
+
+async function showDetail(t){
+  const d=await (await fetch(API+'/api/assets/'+t)).json(); const a=d.asset;
+  const el=document.getElementById('detail'); el.classList.remove('hidden');
+  const strat=Object.entries(d.strategy_scores).map(([k,v])=>`<span class="pill ${v>=70?'hi':v>=45?'mid':'lo'}" style="margin-right:6px">${k}: ${v??'—'}</span>`).join('');
+  el.innerHTML=`<div class="row" style="justify-content:space-between"><div><div class="badge" style="font-size:18px;padding:8px 16px">${a.ticker}</div></div><button class="ghost" onclick="document.getElementById('detail').classList.add('hidden')">fechar</button></div>
+  <p style="margin:10px 0 4px;font-weight:600">${a.name} · ${a.sector} · R$ ${a.price?.toFixed(2)}</p>
+  ${a.eliminated?`<div class="flag block"><b>Eliminada pelos filtros</b><p>${a.eliminations.map(e=>e.code+' — '+e.reason).join('<br>')}</p></div>`:''}
+  ${a.warnings.map(w=>`<div class="flag"><p>${w}</p></div>`).join('')}
+  <p class="sec" style="margin:8px 0">Score final por estratégia: ${strat}</p>
+  ${Object.entries(a.breakdown).map(([k,b])=>`<div class="dimh"><span>${b.label} <span class="sec">(comparação: ${b.peer_basis})</span></span><span>${b.score??'—'}</span></div>
+     <div class="sec" style="font-size:11px;margin-bottom:4px">${b.reference}</div>
+     ${b.reguas.map(r=>`<div class="rg ${r.status==='indisponivel'?'off':''}"><span>${r.label}${r.status==='indisponivel'?' <span class="sec">— '+(r.note||'indisponível')+'</span>':''}</span><span class="v">${r.status==='indisponivel'?'':fmtv(r.value,r.fmt)}</span><span class="v">${r.score??'—'}</span></div>`).join('')}`).join('')}`;
+  el.scrollIntoView({behavior:'smooth'});
+}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-t]'); if(t){e.preventDefault(); showDetail(t.dataset.t);} });
+
 init();
+loadExplore();
 </script>
 </body>
 </html>

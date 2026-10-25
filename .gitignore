@@ -5,6 +5,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ipynb_checkpoints/
-data/
+# data/ é versionado: snapshots e dados brutos são pequenos e garantem a demo
 *.zip
 .DS_Store

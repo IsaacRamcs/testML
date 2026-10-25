@@ -185,7 +185,7 @@ então a integração pode ser feita desde já.
 |---|---|
 | `GET /api/questionnaire` | ✅ pronto |
 | `POST /api/profile` | ✅ pronto |
-| `GET /api/rankings` — ranking real do perfil | 🔜 após o motor de score |
-| `GET /api/assets/{ticker}` — detalhe + breakdown + notícias | 🔜 |
+| `GET/POST /api/rankings` — ranking real do perfil | ✅ pronto (v0.2-dev) |
+| `GET /api/assets/{ticker}` — detalhe + breakdown por régua | ✅ pronto (notícias 🔜) |
 | `POST /api/invest/allocate` — plano de aporte | 🔜 |
 | `GET /api/portfolio/analysis` | 🔜 |
