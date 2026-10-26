@@ -1,0 +1,7 @@
+metodo;url;n;p95_s;media_s;minimo_s;maximo_s
+GET;http://127.0.0.1:8000/api/questionnaire;20;0.0015;0.0014;0.0012;0.0018
+POST;http://127.0.0.1:8000/api/profile;20;0.0025;0.0023;0.0022;0.0027
+GET;http://127.0.0.1:8000/api/rankings?vector=renda&limit=10;20;0.0027;0.0023;0.0021;0.0032
+POST;http://127.0.0.1:8000/api/rankings;20;0.0023;0.0022;0.0021;0.0025
+GET;http://127.0.0.1:8000/api/assets/TAEE11;20;0.0017;0.0016;0.0015;0.0019
+GET;http://127.0.0.1:8000/api/scores/meta;20;0.0014;0.0013;0.0013;0.0014

@@ -1,0 +1,128 @@
+﻿==============================================================================
+Testes Robot                                                                  
+==============================================================================
+Testes Robot.Api Desempenho :: Testes de DESEMPENHO (RNF-002): consultas re...
+==============================================================================
+TC-ML-DES-01 P95 do GET /api/questionnaire :: RNF-002: P95 <= 1,5 ... | PASS |
+P95=0.0015 s | média=0.0014 s | máx=0.0018 s | n=20
+------------------------------------------------------------------------------
+TC-ML-DES-02 P95 do POST /api/profile :: RNF-002: P95 <= 1,5 s em ... | PASS |
+P95=0.0025 s | média=0.0023 s | máx=0.0027 s | n=20
+------------------------------------------------------------------------------
+TC-ML-DES-03 P95 do GET /api/rankings :: RNF-002: P95 <= 1,5 s em ... | PASS |
+P95=0.0027 s | média=0.0023 s | máx=0.0032 s | n=20
+------------------------------------------------------------------------------
+TC-ML-DES-04 P95 do POST /api/rankings :: RNF-002: P95 <= 1,5 s em... | PASS |
+P95=0.0023 s | média=0.0022 s | máx=0.0025 s | n=20
+------------------------------------------------------------------------------
+TC-ML-DES-05 P95 do GET /api/assets/{ticker} :: RNF-002: P95 <= 1,... | PASS |
+P95=0.0017 s | média=0.0016 s | máx=0.0019 s | n=20
+------------------------------------------------------------------------------
+TC-ML-DES-06 P95 do GET /api/scores/meta :: RNF-002: P95 <= 1,5 s ... | PASS |
+P95=0.0014 s | média=0.0013 s | máx=0.0014 s | n=20
+------------------------------------------------------------------------------
+Testes Robot.Api Desempenho :: Testes de DESEMPENHO (RNF-002): con... | PASS |
+6 tests, 6 passed, 0 failed
+==============================================================================
+Testes Robot.Api Funcional :: Testes FUNCIONAIS: cenários de negócio do ere...
+==============================================================================
+TC-ML-FUN-01 Investidor com respostas típicas de conservador receb... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-02 Investidor com respostas típicas de moderado recebe p... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-03 Investidor com respostas típicas de arrojado recebe p... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-04 Fronteira 13/14 separa conservador de moderado :: REA... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-05 Fronteira 26/27 separa moderado de arrojado :: README... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-06 Investidor sem reserva de emergência é limitado a con... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-07 Horizonte menor que 1 ano marca o perfil como bloquea... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-08 Horizonte menor que 1 ano não recebe sugestões de com... | FAIL |
+RN-011 violada: perfil bloqueado recebeu 8 sugestões de compra
+------------------------------------------------------------------------------
+TC-ML-FUN-09 Objetivo de crescimento sem capacidade de risco gera ... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-10 Ranking de renda prioriza dividendos e difere do rank... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-11 Ranking com vetor de pesos customizado (100% dividendos) | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-12 Vetor customizado que não soma 1 ainda gera scores en... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-13 A mesma ação recebe scores diferentes conforme o perf... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-14 A mesma ação tem scores diferentes nos rankings de pe... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-15 Recomendações de perfil conservador não contradizem o... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-16 Perfil conservador que declara crescimento não recebe... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-17 Ação eliminada nunca aparece em nenhum ranking :: REA... | PASS |
+------------------------------------------------------------------------------
+TC-ML-FUN-18 Toda resposta com recomendação traz o aviso educacion... | PASS |
+------------------------------------------------------------------------------
+Testes Robot.Api Funcional :: Testes FUNCIONAIS: cenários de negóc... | FAIL |
+18 tests, 17 passed, 1 failed
+==============================================================================
+Testes Robot.Api Integracao :: Testes de INTEGRAÇÃO da API HTTP do erenML (...
+==============================================================================
+TC-ML-INT-01 Health responde 200 com scores disponíveis :: Infra /... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-02 Questionário tem 12 perguntas e versão :: README (US0... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-03 Questionário não expõe a pontuação das opções :: docs... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-04 Perfil com respostas válidas retorna a estrutura do c... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-05 Perfil com resposta faltando é rejeitado com 422 :: d... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-06 Perfil com opção inválida é rejeitado com 422 :: docs... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-07 Perfil com pergunta desconhecida é rejeitado com 422 ... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-08 Perfil com corpo vazio é rejeitado com 422 :: Validaç... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-09 Perfil com tipo errado é rejeitado com 422 :: Validaç... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-10 Ranking com estratégia inválida é rejeitado com 422 :... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-11 Ranking responde para as 4 estratégias com pesos que ... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-12 Ranking com limit muito grande devolve no máximo as a... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-13 Ranking com limit negativo é rejeitado :: Limite extr... | FAIL |
+limit=-1 respondeu 200 com 48 ações (esperado 4xx)
+------------------------------------------------------------------------------
+TC-ML-INT-14 Ranking com limit zero não devolve o universo inteiro... | FAIL |
+limit=0 devolveu 49 ações
+------------------------------------------------------------------------------
+TC-ML-INT-15 Ranking com limit não numérico é rejeitado com 422 ::... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-16 Detalhe de ação existente :: README (GET /api/assets/... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-17 Detalhe de ação inexistente responde 404 :: README (G... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-18 Ação eliminada aparece marcada e sem score por estrat... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-19 Meta dos scores traz data e réguas pendentes :: READM... | PASS |
+------------------------------------------------------------------------------
+TC-ML-INT-20 Ranking customizado com pesos zerados é rejeitado com... | FAIL |
+500 != 422
+------------------------------------------------------------------------------
+TC-ML-INT-21 Ranking customizado com dimensão desconhecida é rejei... | FAIL |
+500 != 422
+------------------------------------------------------------------------------
+TC-ML-INT-22 Ranking customizado com peso negativo não gera score ... | FAIL |
+CXSE3 com final_score=156.7, fora da faixa 0–100
+------------------------------------------------------------------------------
+Testes Robot.Api Integracao :: Testes de INTEGRAÇÃO da API HTTP do... | FAIL |
+22 tests, 17 passed, 5 failed
+==============================================================================
+Testes Robot                                                          | FAIL |
+46 tests, 40 passed, 6 failed
+==============================================================================
+Output:  C:\Users\Coordenador\Projetos\eren_ML\erenML\resultados\output.xml
+Log:     C:\Users\Coordenador\Projetos\eren_ML\erenML\resultados\log.html
+Report:  C:\Users\Coordenador\Projetos\eren_ML\erenML\resultados\report.html
